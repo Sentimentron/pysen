@@ -11,5 +11,5 @@ class TopiaTagger(Tagger):
 		self.tagger.initialize()
 
 
-	def tag(self, text, collator):
+	def tag(self, text):
 		return self.tagger(text)

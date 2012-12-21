@@ -6,11 +6,8 @@ class Tagger(object):
 	def __init__(self):
 		pass
 	
-	def tag(self, text, collator):
+	def tag(self, text):
 		"""
 			Takes a natural-language sentence and returns a POS tagged version.
 		"""
 		pass
-
-	def push_to_collation(self, collator, item, result):
-		collator.push(self, item, "TAG", result)
