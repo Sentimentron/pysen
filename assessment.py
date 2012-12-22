@@ -8,6 +8,12 @@
 from readers.pang_lee import *
 import itertools
 
+def compute_precision(true_positives, false_positives):
+	return true_positives * 1.0 / (true_positives + false_positives)
+
+def compute_recall(true_positives, other_positives):
+	return true_positives / other_positives
+
 def pl_assess_sentence_performance(label_func, sbase):
 	"""
 		Runs label_func on every sentence within pang/lee's 
@@ -39,7 +45,10 @@ def pl_assess_sentence_performance(label_func, sbase):
 			accurate += 1
 			print total, "%.2f\t%.2f" % (100.0*accurate/classified, 100.0*classified/total)
 
-	return result_junk
+	precision = compute_precision(len(result_junk[(1, 1)]), len(result_junk[(-1, 1)]))
+	print "precision (positive): %.2f%%" % (100.0*precision)
+
+	return result_junk, precision
 
 
 
