@@ -12,7 +12,10 @@ def compute_precision(true_positives, false_positives):
 	return true_positives * 1.0 / (true_positives + false_positives)
 
 def compute_recall(true_positives, other_positives):
-	return true_positives / other_positives
+	"""
+	Recall in this context is defined as the number of true positives divided by the total number of elements that actually belong to the positive class (i.e. the sum of true positives and false negatives, which are items which were not labeled as belonging to the positive class but should have been).
+	"""
+	return true_positives / (true_positives + other_positives)
 
 def pl_assess_sentence_performance(label_func, sbase):
 	"""
@@ -46,9 +49,11 @@ def pl_assess_sentence_performance(label_func, sbase):
 			print total, "%.2f\t%.2f" % (100.0*accurate/classified, 100.0*classified/total)
 
 	precision = compute_precision(len(result_junk[(1, 1)]), len(result_junk[(-1, 1)]))
+	recall = compute_precision(len(result_junk[(1, 1)]), len(result_junk[(1, -1)]))
 	print "precision (positive): %.2f%%" % (100.0*precision)
+	print "recall (positive): %.2f%%" % (100.0*recall)
 
-	return result_junk, precision
+	return result_junk, precision, recall
 
 
 
