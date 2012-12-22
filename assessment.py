@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-	assessement.pu helps to compare different approaches
+	assessement.py helps to compare different approaches
 	to labelling sentences and documents.
 """
 

@@ -1,5 +1,3 @@
-from models import SWEntry, SWEntryCollection
-
 def read_sen_file(fp):
 
 	ret = {}
@@ -26,7 +24,6 @@ def read_sen_file(fp):
 			term, spatula, no = term.partition('#')
 			term = term.strip()
 			entry = {'pos': pos_score, 'neg': neg_score, 'partofspeech': pos, 'no': no}
-			#entry = SWEntry(pos_score, neg_score, pos, no)
 			if term in ret:
 				ret[term].append(entry)
 			else:

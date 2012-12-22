@@ -1,4 +1,5 @@
-from tagger import Tagger 
+from tagger import Tagger
+from topia.termextract import tag
 
 class TopiaTagger(Tagger):
 	"""
@@ -7,7 +8,7 @@ class TopiaTagger(Tagger):
 	"""
 
 	def __init__(self):
-		self.tagger = tag.Tagger()
+		self.tagger = topia.termextract.tag.Tagger()
 		self.tagger.initialize()
 
 
