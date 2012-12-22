@@ -5,7 +5,7 @@ class Scorer(object):
 	def __init__(self):
 		pass
 
-	def score(self, tagged, collator):
+	def score(self, tagged):
 		"""
 			Scores what, returns a number between -1 and 1, or None
 			if the sentiment is unknown

@@ -15,9 +15,8 @@ class SWScorer(Scorer):
 			return None
 		return self.scores[word.lower()]
 
-	def score(self, tagged, collator):
+	def score(self, tagged):
 		for scoring in tagged:
 			word, pos, norm = scoring 
 			score = self.get_score(word)
-			self.push_to_collation(collator, scoring, score)
 			yield word, pos, norm, score 

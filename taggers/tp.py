@@ -8,7 +8,7 @@ class TopiaTagger(Tagger):
 	"""
 
 	def __init__(self):
-		self.tagger = topia.termextract.tag.Tagger()
+		self.tagger = tag.Tagger()
 		self.tagger.initialize()
 
 

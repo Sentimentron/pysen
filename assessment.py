@@ -34,6 +34,7 @@ def pl_assess_sentence_performance(label_func, sbase):
 		if result == 0:
 			continue
 
+		classified += 1
 		if result == label:
 			accurate += 1
 			print total, "%.2f\t%.2f" % (100.0*accurate/classified, 100.0*classified/total)
