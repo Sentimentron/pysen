@@ -1,1 +1,1 @@
-from sw import SWScorer
+from sw import SWScorer, SWPOSScorer
