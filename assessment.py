@@ -53,7 +53,10 @@ def pl_assess_sentence_performance(label_func, sbase):
 	print "precision (positive): %.2f%%" % (100.0*precision)
 	print "recall (positive): %.2f%%" % (100.0*recall)
 
-	return result_junk, precision, recall
+	return {"results": result_junk, "precision": precision, 
+				"recall": recall, "accuracy": 1.0*accurate/classified, 
+				"coverage": 1.0*classified/total, "total": total, 
+				"classified": classified}
 
 
 
