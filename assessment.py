@@ -43,9 +43,7 @@ def pl_assess_sentence_performance(label_func, sbase, interactive=True):
 		if interactive:
 			print sentence, label, result
 			raw_input("Press any key")
-		else:
-			print sentence, label, result
-
+		
 		if result == 0:
 			continue
 
