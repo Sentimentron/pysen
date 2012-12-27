@@ -17,7 +17,7 @@ def compute_recall(true_positives, other_positives):
 	"""
 	return true_positives / (true_positives + other_positives)
 
-def pl_assess_sentence_performance(label_func, sbase):
+def pl_assess_sentence_performance(label_func, sbase, interactive=True):
 	"""
 		Runs label_func on every sentence within pang/lee's 
 		dataset and prints the results as we go along. 
@@ -39,6 +39,12 @@ def pl_assess_sentence_performance(label_func, sbase):
 		result, junk = label_func(sentence)
 
 		result_junk[(label, result)].append(junk)
+
+		if interactive:
+			print sentence, label, result
+			raw_input("Press any key")
+		else:
+			print sentence, label, result
 
 		if result == 0:
 			continue
