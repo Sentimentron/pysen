@@ -11,3 +11,11 @@ class Scorer(object):
 			if the sentiment is unknown
 		"""
 		pass
+
+	def get_score(self, word, extra={}):
+		pass
+
+class TrainableScorer(Scorer):
+
+	def train(self, word, label, extra={}):
+		pass 

@@ -10,7 +10,7 @@ class SWScorer(Scorer):
 	def __init__(self, scores):
 		self.scores = scores 
 
-	def get_score(self, word):
+	def get_score(self, word, extra={}):
 		if word.lower() not in self.scores:
 			return None
 		return self.scores[word.lower()]

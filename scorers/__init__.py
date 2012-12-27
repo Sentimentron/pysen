@@ -1,2 +1,2 @@
 from sw import SWScorer, SWPOSScorer
-from scorer import Scorer
+from scorer import Scorer, TrainableScorer
