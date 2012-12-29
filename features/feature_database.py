@@ -31,7 +31,12 @@ class FeatureDatabase(object):
 		if not self.feature_exists(feature):
 			self.add_feature(feature)
 
-	def get_feature_examples(self, feature, source=None):
+	def get_sources(self):
+		"""
+			Returns a set containing sources stored within this FeatureDatabase
+		"""
+
+	def get_feature_examples(self, feature, sources=None):
 		"""
 			Returns a generator which can be used to iterate through training
 			examples. 
