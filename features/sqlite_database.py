@@ -60,9 +60,9 @@ class SQLiteFeatureDatabase(FeatureDatabase):
 		return pickle.loads(pickled_feature)
 
 	def _get_feature_id(self, feature):
-		pf = self._get_unpickled_feature(feature)
+		pf = self._get_pickled_feature(feature)
 		ret = None
-		with self._get_connection() as conn:
+		with self._get_connection() as con:
 			cur = con.cursor()
 			sql = "SELECT id FROM feature_m WHERE feature = ?"
 			cur.execute(sql, (pf,))
@@ -80,7 +80,8 @@ class SQLiteFeatureDatabase(FeatureDatabase):
 					feature_id INTEGER,
 					label INTEGER,
 					extra BLOB,
-				) CONSTRAINT FOREIGN KEY (feature_id) REFERENCES feature_m(id)"""
+					FOREIGN KEY (feature_id) REFERENCES feature_m(id)
+				)"""
 			cur.execute(sql)
 			cur.close()
 			conn.commit()
@@ -91,6 +92,21 @@ class SQLiteFeatureDatabase(FeatureDatabase):
 			return True
 		return False
 
+	def add_feature(self, feature):
+		# Get the pickled feature
+		feature = self._get_pickled_feature(feature)
+
+		# Construct query
+		sql = "INSERT INTO feature_m (feature) VALUES (?)"
+
+		# Execute query
+		with self._get_connection() as con:
+			cur = con.cursor()
+			cur.execute(sql, [feature])
+			con.commit()
+
+		return True
+
 	def add_feature_example(self, feature, label, source="default", extra=None):
 
 		super(SQLiteFeatureDatabase, self).add_feature_example(feature, label, source, extra)
@@ -98,6 +114,10 @@ class SQLiteFeatureDatabase(FeatureDatabase):
 		# Check if the feature_source table exists 
 		if not self._feature_table_exists(source):
 			self._create_feature_table(source)
+
+		# Check the label
+		if label not in [0, 1]:
+			raise ValueError("label: must be between 0 and 1")
 
 		# Get the feature identity
 		feature_id = self._get_feature_id(feature)
@@ -117,7 +137,12 @@ class SQLiteFeatureDatabase(FeatureDatabase):
 		with self._get_connection() as con:
 			cur = con.cursor()
 			if extra is not None:
-				cur.execute(sql_extra, [])
+				cur.execute(sql_extra, [feature_id, label, extra])
+			else:
+				cur.execute(sql_normal, [feature_id, label])
+			con.commit()
+
+		return True 
 
 
 	def __init__(self, db_file=":memory:"):

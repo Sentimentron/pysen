@@ -23,7 +23,7 @@ class FeatureDatabase(object):
 		"""
 		pass
 
-	def add_feature_example(self, feature, label, extra=None):
+	def add_feature_example(self, feature, label, source, extra=None):
 		"""
 			Inserts feature into the database (if it doesn't exist) and associates
 			label and extra information with it. Returns True on success.

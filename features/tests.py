@@ -23,7 +23,8 @@ def invalid_feature_example_test():
 all_tests = [
 
 	("--delete", delete_test_db),
-	("--create", create_test_db)
+	("--create", create_test_db),
+	("--invalid", invalid_feature_example_test)
 
 ]
 
@@ -44,19 +45,14 @@ if __name__ == "__main__":
 		sys.exit(1)
 
 	for arg, test in tests:
-		msg = None 
-		try:
-			result = test()
-			msg = None 
-		except Exception as ex:
-			result = False
-			msg = str(ex)
+		ex = None 
+		result = test()
 		print "%-15s" % arg, 
 		if result:
 			print "PASS"
 		else:
 			print "FAIL"
-			if msg is not None:
-				print msg 
+			if ex is not None:
+				raise ex
 
 
