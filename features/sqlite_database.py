@@ -120,8 +120,8 @@ class SQLiteFeatureDatabase(FeatureDatabase):
 			self._create_feature_table(source)
 
 		# Check the label
-		if label not in [0, 1]:
-			raise ValueError("label: must be between 0 and 1")
+		if label not in [-1, 1]:
+			raise ValueError("label: must be 1 or -1")
 
 		# Get the feature identity
 		feature_id = self._get_feature_id(feature)

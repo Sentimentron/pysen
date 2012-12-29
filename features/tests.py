@@ -30,9 +30,9 @@ def valid_feature_example_test():
 
 def get_feature_examples():
 	fdb = SQLiteFeatureDatabase(db_file)
-	fdb.add_feature_example("valid_feature", 0)
+	fdb.add_feature_example("valid_feature", -1)
 	fdb.add_feature_example("another_valid_feature", 1)
-	fdb.add_feature_example("another_valid_feature", 0, "default", {'distrust': True})
+	fdb.add_feature_example("another_valid_feature", -1, "default", {'distrust': True})
 	fdb.add_feature_example("something_else", 1)
 
 	for label, extra in fdb.get_feature_examples("another_valid_feature"):
