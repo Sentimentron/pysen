@@ -9,6 +9,8 @@ import pickle
 
 from feature_database import FeatureDatabase
 
+FEATURE_EX_PREFIX="feature_ex_"
+
 class SQLiteFeatureDatabase(FeatureDatabase):
 
 	def _get_tables(self):
@@ -21,7 +23,6 @@ class SQLiteFeatureDatabase(FeatureDatabase):
 			cur.close()
 		return ret 
 
-
 	def _get_connection(self, isolation="DEFERRED"):
 			return sqlite3.connect(self._file, isolation_level=isolation)
 
@@ -32,7 +33,10 @@ class SQLiteFeatureDatabase(FeatureDatabase):
 		return False
 
 	def _gen_feature_table_name(self, name):
-		return "feature_ex_"+name 
+		return FEATURE_EX_PREFIX+name 
+
+	def _gen_name_from_ftable_name(self, name):
+		return name[len(FEATURE_EX_PREFIX):]
 
 	def _create_master_table(self):
 		sql = """
@@ -57,7 +61,7 @@ class SQLiteFeatureDatabase(FeatureDatabase):
 		return pickle.dumps(feature)
 
 	def _get_unpickled_feature(self, pickled_feature):
-		return pickle.loads(pickled_feature)
+		return sqlite3.Binary(pickle.loads(pickled_feature))
 
 	def _get_feature_id(self, feature):
 		pf = self._get_pickled_feature(feature)
@@ -132,17 +136,60 @@ class SQLiteFeatureDatabase(FeatureDatabase):
 		# Get the table name
 		source = self._gen_feature_table_name(source)
 
+		# Insert the feature
 		sql_extra = "INSERT INTO %s (feature_id, label, extra) VALUES (?, ?, ?)" % (source,)
 		sql_normal = "INSERT INTO %s (feature_id, label) VALUES (?, ?)" % (source,)
 		with self._get_connection() as con:
 			cur = con.cursor()
 			if extra is not None:
-				cur.execute(sql_extra, [feature_id, label, extra])
+				cur.execute(sql_extra, [feature_id, label, sqlite3.Binary(extra)])
 			else:
 				cur.execute(sql_normal, [feature_id, label])
 			con.commit()
 
 		return True 
+
+	def get_sources(self):
+		tables = self._get_tables()
+		tables = filter(lambda x: "feature_m" not in x, tables)
+		sources = map(self._gen_name_from_ftable_name, tables)
+		sources = set(sources)
+		return sources
+
+	def get_feature_examples(self, feature, sources=None):
+		
+		# Figure out which tables we need to query
+		example_tables = filter(lambda x: "feature_m" not in x, self._get_tables())
+		tables = []
+		if sources is not None:
+			# Map the sources onto table names
+			sources = map(self._gen_feature_table_name, sources)
+			for source in sources:
+				source_tab = self._gen_feature_table_name(source)
+				if source_tab not in example_tables:
+					raise ValueError("sources: must exist within database - %s", (source,))
+				tables.add(source_tab)
+		else:
+			tables = example_tables
+
+		# Figure out the id of the thing we're querying
+		feature_id = self._get_feature_id(feature)
+		if feature_id is None:
+			return
+
+		# Open the connection and cursor and generate the results
+		with self._get_connection() as con:
+			cur = con.cursor()
+			# Query each of the example tables 
+			for table in tables:
+				sql = "SELECT label, extra FROM %s WHERE feature_id = ?" % (table,)
+				cur.execute(sql, [feature_id])
+				for row in cur:
+					label, extra = row 
+					if extra is not None:
+						extra = pickle.loads(extra)
+					yield (label, extra)
+			cur.close()
 
 
 	def __init__(self, db_file=":memory:"):
