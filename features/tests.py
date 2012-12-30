@@ -1,7 +1,13 @@
 import sys
-from sqlite_database import SQLiteFeatureDatabase
+#from sqlite_database import AlchemyFeatureDatabase
+from alchemy_database import AlchemyFeatureDatabase
+#from sqlalchemy import create_engine
+import sqlalchemy
 
 db_file = ":memory:"
+
+def create_engine():
+	return sqlalchemy.create_engine("sqlite:///"+db_file, echo=False)
 
 def delete_test_db():
 	if db_file != ":memory:":
@@ -13,11 +19,11 @@ def delete_test_db():
 	return True 
 
 def create_test_db():
-	fdb = SQLiteFeatureDatabase(db_file)
+	fdb = AlchemyFeatureDatabase(db_file)
 	return True
 
 def invalid_feature_example_test():
-	fdb = SQLiteFeatureDatabase(db_file)
+	fdb = AlchemyFeatureDatabase(db_file)
 	try:
 		return fdb.add_feature_example("invalid_feature", 5)
 	except ValueError as ex:
@@ -25,18 +31,22 @@ def invalid_feature_example_test():
 	return False 
 
 def valid_feature_example_test():
-	fdb = SQLiteFeatureDatabase(db_file)
+	fdb = AlchemyFeatureDatabase(db_file)
 	return fdb.add_feature_example("valid_feature", 1)
 
 def get_feature_examples():
-	fdb = SQLiteFeatureDatabase(db_file)
+	fdb = AlchemyFeatureDatabase(db_file)
 	fdb.add_feature_example("valid_feature", -1)
 	fdb.add_feature_example("another_valid_feature", 1)
 	fdb.add_feature_example("another_valid_feature", -1, "default", {'distrust': True})
 	fdb.add_feature_example("something_else", 1)
 
-	for label, extra in fdb.get_feature_examples("another_valid_feature"):
-		print label, extra
+	for source, label, extra in fdb.get_feature_examples("another_valid_feature"):
+		print source, label, extra
+
+	for source, label, extra in fdb.get_feature_examples("valid_feature"):
+		print source, label, extra
+
 
 all_tests = [
 
@@ -63,6 +73,8 @@ if __name__ == "__main__":
 		for arg, func in all_tests:
 			print >> sys.stderr, "\t", arg 
 		sys.exit(1)
+
+	db_file = create_engine()
 
 	for arg, test in tests:
 		ex = None 
