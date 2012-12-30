@@ -102,7 +102,6 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 		session = self._get_session()
 		source = Source(source)
 		session.add(source)
-		session.commit()
 		return True
 
 	def get_source(self, qry):
@@ -133,7 +132,6 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 		example_obj = Example(feature_obj, label, source_obj, extra)
 
 		session.add(example_obj)
-		session.commit()
 		return True
 
 	def get_feature_examples(self, feature, sources=set([])):
