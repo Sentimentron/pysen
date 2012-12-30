@@ -25,6 +25,9 @@ class Feature(Base):
 		self.feature = feature
 
 class Source(Base):
+	"""
+		Sources are the training files where features come from.
+	"""
 
 	__tablename__ = 'sources'
 
@@ -35,6 +38,10 @@ class Source(Base):
 		self.source = source
 
 class Example(Base):
+	"""
+		Examples are individual good/bad labels associated with Features, 
+		observed in Sources
+	"""
 
 	__tablename__ = 'examples'
 
@@ -54,6 +61,11 @@ class Example(Base):
 
 
 class AlchemyFeatureDatabase(FeatureDatabase):
+
+	"""
+		Uses SQLAlchemy to provide a a FeatureDatabase backed by an SQL database.
+		IMPORTANT: all insertions must be followed by a finalize() call
+	"""
 
 	def __init__(self, engine):
 		"""
