@@ -1,7 +1,8 @@
-from feature_database import FeatureDatabase
-import pickle
+import types
 
-from sqlalchemy import Table, Sequence, Column, Integer, String, ForeignKey
+from feature_database import FeatureDatabase
+
+from sqlalchemy import Table, Sequence, Column, Integer, String, ForeignKey, create_engine
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.session import Session
 from sqlalchemy.ext.declarative import declarative_base
@@ -59,6 +60,8 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 			Initializes this feature database using an engine
 		"""
 
+		if type(engine) == types.StringType:
+			engine = create_engine(engine)
 		self._engine = engine
 		self._session = Session(bind=self._engine)
 		self.initialize()
@@ -66,6 +69,8 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 	def initialize(self):
 		Base.metadata.create_all(self._engine)
 
+	def finalize(self):
+		self._session.commit()
 
 	def _get_session(self):
 		return self._session 

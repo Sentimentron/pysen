@@ -32,7 +32,9 @@ def invalid_feature_example_test():
 
 def valid_feature_example_test():
 	fdb = AlchemyFeatureDatabase(db_file)
-	return fdb.add_feature_example("valid_feature", 1)
+	ret = fdb.add_feature_example("valid_feature", 1)
+	fdb.finalize()
+	return ret
 
 def get_feature_examples():
 	fdb = AlchemyFeatureDatabase(db_file)
@@ -40,6 +42,7 @@ def get_feature_examples():
 	fdb.add_feature_example("another_valid_feature", 1)
 	fdb.add_feature_example("another_valid_feature", -1, "default", {'distrust': True})
 	fdb.add_feature_example("something_else", 1)
+	fdb.finalize()
 
 	for source, label, extra in fdb.get_feature_examples("another_valid_feature"):
 		print source, label, extra
