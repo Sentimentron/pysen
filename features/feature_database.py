@@ -42,3 +42,9 @@ class FeatureDatabase(object):
 			examples. 
 		"""
 		pass
+
+	def finalize(self):
+		"""
+			Implementors have DB-specific methods to do clearup.
+		"""
+		pass
