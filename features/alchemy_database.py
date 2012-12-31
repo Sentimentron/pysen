@@ -3,7 +3,7 @@ import types
 from feature_database import FeatureDatabase
 
 from sqlalchemy import Table, Sequence, Column, Integer, String, ForeignKey, create_engine
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship, backref, joinedload
 from sqlalchemy.orm.session import Session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import PickleType
@@ -76,6 +76,8 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 			engine = create_engine(engine)
 		self._engine = engine
 		self._session = Session(bind=self._engine)
+		self._cache = None
+		self._cache_dirty = False
 		self.initialize()
 
 	def initialize(self):
@@ -109,6 +111,28 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 		for obj in session.query(Source).filter_by(source=qry):
 			return obj
 
+	def _gen_cache(self):
+		self._cache = {}
+		cache = self._cache
+		session = self._get_session()
+		for obj in session.query(Example)\
+			.options(joinedload('feature'))\
+			.options(joinedload('source')):
+			if obj.source.source not in cache:
+				cache[obj.source.source] = {}
+			sub_cache = cache[obj.source.source]
+			feature = obj.feature.feature 
+			if type(feature) is not types.StringType:
+				sub_cache_key = str(obj.feature.feature)
+			else:
+				sub_cache_key = feature
+			if sub_cache_key not in sub_cache:
+				sub_cache[sub_cache_key] = [(obj.label, obj.extra)]
+			else:
+				sub_cache[sub_cache_key].append((obj.label, obj.extra))
+		self._cache_dirty = False
+
+
 	def add_feature_example(self, feature, label, source=None, extra = None):
 
 		if source is None:
@@ -132,15 +156,23 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 		example_obj = Example(feature_obj, label, source_obj, extra)
 
 		session.add(example_obj)
+		self._cache_dirty = True
 		return True
 
-	def get_feature_examples(self, feature, sources=set([])):
+	def get_feature_examples(self, feature, sources=None):
 
-		feature_obj = self.get_feature(feature)
-		if feature_obj is None:
-			return
+		if self._cache is None or self._cache_dirty:
+			self._gen_cache()
 
-		session = self._get_session()
+		if type(feature) is not types.StringType:
+			feature = str(feature)
 
-		for obj in session.query(Example).filter_by(feature=feature_obj):
-			yield obj.source.source, obj.label, obj.extra
+		for source in self._cache:
+			if sources is not None:
+				if source not in sources:
+					continue
+			sc = self._cache[source]
+			if feature not in sc:
+				continue 
+			for pair in sc[feature]:
+				yield pair 
