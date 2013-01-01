@@ -31,3 +31,33 @@ class SentenceClassifier(object):
 			confidence levels should return None in these places.
 		"""
 		pass
+
+class SentenceThresholdClassifer(SentenceClassifier):
+
+	def __init__(self, positive_threshold, negative_threshold, confidence_threshold=None):
+
+		if positive_threshold is None:
+			raise ValueError("positive_threshold: can't be None")
+		if negative_threshold is None:
+			raise ValueError("negative_threshold: can't be None")
+
+		if negative_threshold > positive_threshold:
+			raise ValueError("negative_threshold: can't be greater than positive_threshold")
+
+		self.positive_threshold = positive_threshold
+		self.negative_threshold = negative_threshold
+		self.confidence_threshold = confidence_threshold
+
+	def _get_label(self, overall, confidence):
+		
+		if self.confidence_threshold is not None:
+			if confidence < self.confidence_threshold:
+				return 0
+
+		# Determine label
+		if overall >= self.positive_threshold:
+			return 1
+		elif overall <= self.negative_threshold:
+			return -1
+		
+		return 0
