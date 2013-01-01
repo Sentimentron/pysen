@@ -26,6 +26,7 @@ class TrainingSimulationFeatureDatabase(FeatureDatabase):
 
 		self.wrapping = fdb
 		self.coverage = coverage
+		self.cache = None
 
 
 	def _coverage_check(self):
@@ -48,8 +49,15 @@ class TrainingSimulationFeatureDatabase(FeatureDatabase):
 		return self.wrapping.get_sources()
 
 	def get_feature_examples(self, feature, sources=None):
+		# Ensures that the training features chosen stay consistent across runs
+		if self.cache is not None:
+			return self.cache
+
+		self.cache = []
+
 		all_examples = self.wrapping.get_feature_examples(feature, sources)
 		for example in all_examples:
 			if not self._coverage_check():
 				continue
+			self.cache.append(example)
 			yield example
