@@ -1,6 +1,19 @@
 #!/usr/bin/python
 
 from classifier import SentenceThresholdClassifier
+import math
+
+def _range(low, high, increment):
+	cur = low 
+	buf = []
+	while cur <= high:
+		buf.append(cur)
+		cur += increment
+	return buf
+
+def compute_mean(of):
+	total = sum(of)
+	return 1.0 * total / len(of)
 
 class SentenceConvolutionClassifier(SentenceThresholdClassifier):
 
@@ -82,15 +95,15 @@ class SentenceConvolutionClassifier(SentenceThresholdClassifier):
 				if "affectors" in entry:
 					affecting_score *= compute_mean(entry["affectors"])
 
-				spread_list = range(-spread, spread+1)
+				spread_list = _range(-spread, spread+1, 1.0)
 				cos_base = map(lambda x: x * math.pi / (2.0 * spread), spread_list)
 				cos_list = map(lambda x: x * affecting_score, map(abs, map(math.cos, cos_base)))
 
 				min_spread = max(0, position-spread)
-				max_spread = min(count, position+spread)
+				max_spread = min(len(sentence)-1, position+spread)
 
 				spread_counter = 0
-				for key in range(min_spread, max_spread):
+				for key in _range(min_spread, max_spread, 1.0):
 					if key == position:
 						continue
 					entry = sentence[key]
@@ -120,7 +133,7 @@ class SentenceConvolutionClassifier(SentenceThresholdClassifier):
 				neg += 1
 
 
-		if pos > neg + self.positve_threshold:
+		if pos > neg + self.positive_threshold:
 			return 1, None, None
 		if neg > pos + self.negative_threshold:
 			return -1, None, None

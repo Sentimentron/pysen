@@ -15,18 +15,18 @@ class SentenceMeanClassifier(SentenceThresholdClassifier):
 
 	def classify_sentence(self, sentence):
 
-		unknowns, words, score, scorable = 0, 0, 0, 0
+		unknowns, words, total_score, scorable = 0, 0, 0, 0
 		contradictions = 0
 
 		# Work out the average score 
 		for word, pos, norm, scores in sentence:
 			words += 1
-			if scores is None:
+			if scores is None or len(scores) == 0:
 				unknowns += 1
 				continue
 			for score in scores:
-				score += score['pos']
-				score -= score['neg']
+				total_score += score['pos']
+				total_score -= score['neg']
 				scorable += 1
 
 		# Error case for no scores
@@ -34,10 +34,10 @@ class SentenceMeanClassifier(SentenceThresholdClassifier):
 			return 0, 0, 0
 
 		# Compute totals
-		overall = 1.0 * score / scorable
+		overall = 1.0 * total_score / scorable
 		confidence = 1.0 - (1.0 * unknowns / words)
 
 		# Determine label
-		label = self._get_label(overall, unknown)
+		label = self._get_label(overall, confidence)
 
 		return label, overall, confidence

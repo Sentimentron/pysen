@@ -1,4 +1,14 @@
 from classifier import SentenceThresholdClassifier
+import math
+
+def compute_variance(of):
+	mean = compute_mean(of)
+	of = map(lambda x: (x-mean)*(x-mean), of)
+	return compute_mean(of)
+
+def compute_mean(of):
+	total = sum(of)
+	return 1.0 * total / len(of)
 
 class SentenceBigramClassifier(SentenceThresholdClassifier):
 
@@ -27,7 +37,7 @@ class SentenceBigramClassifier(SentenceThresholdClassifier):
 
 	@classmethod
 	def _check_bigram_meaningful(cls, clause1, clause2):
-		if clause1[1] is None or clause[2] is None:
+		if clause1[1] is None or clause2[1] is None:
 			return False
 		return True
 
@@ -73,7 +83,7 @@ class SentenceBigramClassifier(SentenceThresholdClassifier):
 			if scores is None:
 				unknowns += 1
 				continue
-			score = self._compute_score(scores)
+			score = cls._compute_score(scores)
 			if ("RB" in pos or "JJ" in pos) and modify:
 				for key in accum:
 					accum[key] += score[key]
@@ -92,7 +102,7 @@ class SentenceBigramClassifier(SentenceThresholdClassifier):
 		bigrams = filter(lambda x: self._check_bigram_meaningful(*x), bigrams)
 
 		# Generate bigram scores
-		scores = map(lambda x: self._generate_bigramscore, bigrams)
+		scores = map(lambda x: self._generate_bigramscore(x), bigrams)
 
 		# Work out the average scores
 		pos_total, neg_total, unknowns, count = 0, 0, 0, 0
@@ -102,9 +112,14 @@ class SentenceBigramClassifier(SentenceThresholdClassifier):
 			neg_total += neg 
 			unknowns += unknown
 
-		pos = 1.0 * pos_total / count 
-		neg = 1.0 * neg_total / count 
-		unknowns = 1.0 * unknowns / count 
+		if count == 0:
+			pos = 0
+			neg = 0
+			unknowns = 1
+		else:
+			pos = 1.0 * pos_total / count 
+			neg = 1.0 * neg_total / count 
+			unknowns = 1.0 * unknowns / count 
 
 		overall = pos - neg
 		
@@ -114,7 +129,7 @@ class SentenceBigramClassifier(SentenceThresholdClassifier):
 				return 0, overall, unknowns
 
 		# Determine label
-		label = self._get_label(overall, unknown)
+		label = self._get_label(overall, unknowns)
 
 		# Return the result
 		return label, overall, unknowns

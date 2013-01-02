@@ -22,7 +22,10 @@ def read_AFINN_file(fp):
 		elif score > 0:
 			score_dict['pos'] = score/5.0
 
-		ret[word] = score 
+		if word not in ret:
+			ret[word] = []
+
+		ret[word].append(score_dict)
 
 	return ret
 

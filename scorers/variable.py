@@ -38,7 +38,7 @@ class VariableExperienceScorer(TrainableScorer):
 		total = 1.0*pos+neg 
 		if total == 0:
 			return None 
-		diff = abs(pos-neg) * (1-threshold)
+		diff = abs(pos-neg) * (1-self.threshold)
 
 		# If the threshold is one:
 			# For a score to be positive, it has to have a positive component
