@@ -175,4 +175,14 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 			if feature not in sc:
 				continue 
 			for pair in sc[feature]:
-				yield pair 
+				yield pair
+
+	def get_all_features(self):
+		if self._cache is None or self._cache_dirty:
+			self._gen_cache()
+
+		for source in self._cache:
+			sc = self._cache[source]
+			for feature in sc:
+				for label, extra in sc[feature]:
+					yield feature, label, extra
