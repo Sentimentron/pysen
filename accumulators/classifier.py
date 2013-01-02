@@ -48,6 +48,9 @@ class SentenceThresholdClassifier(SentenceClassifier):
 		self.negative_threshold = negative_threshold
 		self.confidence_threshold = confidence_threshold
 
+	def __str__(self):
+		return "%s(positive_threshold=%.2f, negative_threshold=%.2f, confidence_threshold=%.2f)" % 	(str(type(self)), self.positive_threshold, self.negative_threshold, self.confidence_threshold)
+
 	def _get_label(self, overall, confidence):
 
 		if self.confidence_threshold is not None:

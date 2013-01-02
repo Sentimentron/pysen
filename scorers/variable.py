@@ -22,6 +22,9 @@ class VariableExperienceScorer(TrainableScorer):
 		elif threshold > 1:
 			raise ValueError("threshold: can't be greater than 1")
 
+	def __str__(self):
+		return "VariableExperienceScorer(threshold=%.2f, feature_set=%s)" % (self.threshold, self.feature_set)
+
 	def set_threshold(self, threshold):
 		self.threshold = threshold
 
