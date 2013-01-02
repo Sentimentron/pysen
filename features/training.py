@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-
+from collections import Counter
 import random
 import types
 
@@ -22,13 +22,15 @@ class TrainingSimulationFeatureDatabase(FeatureDatabase):
 			raise TypeError("coverage: must be between 0 and 1")
 
 		self.coverage = coverage
-		self.features = None 
+		self.features = None
+		self.cache = Counter()
 
 	def set_features(self, features):
 		self.features = []
 		for feature in features:
 			if self._coverage_check():
 				self.features.append(feature)
+		self._gen_cache()
 
 	def feature_exists(self, feature):
 		for f, label, extra in self.features:
@@ -49,11 +51,24 @@ class TrainingSimulationFeatureDatabase(FeatureDatabase):
 	def get_sources(self):
 		return set([])
 
+	def _gen_cache(self):
+		self.cache = Counter()
+		for feature, label, extra in self.features:
+			self.cache.update([(feature, label)])
+		self.features = None
+
 	def get_feature_examples(self, feature, sources=None):
-		for f, label, extra in self.features:
-			if feature == f:
-				yield label, extra
+		keys = [(feature, 1), (feature, -1)]
+		for key in keys:
+			count = self.cache[key]
+			feature, label = key 
+			for i in range(count):
+				yield label, {}
+
 
 	def get_all_features(self):
-		for thing in self.features:
-			yield thing
+		for key in self.cache:
+			count = self.cache[key]
+			feature, label = key 
+			for i in range(count):
+				yield feature, label, key
