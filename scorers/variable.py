@@ -12,7 +12,7 @@ class VariableExperienceScorer(TrainableScorer):
 
 	"""
 
-	def __init__(self, feature_db, fature_set=None, threshold = 0.0):
+	def __init__(self, feature_db, threshold = 0.0, feature_set = None):
 		self.feature_db = feature_db
 		self.feature_set = feature_set
 		self.threshold = threshold
@@ -29,7 +29,7 @@ class VariableExperienceScorer(TrainableScorer):
 
 		pos, neg = 0, 0
 
-		for label, extra in self.feature_db.get_feature_examples(word, feature_set):
+		for label, extra in self.feature_db.get_feature_examples(word, self.feature_set):
 			if label == 1:
 				pos += 1
 			elif label == -1:

@@ -10,22 +10,23 @@ class SentenceConvolutionClassifier(SentenceThresholdClassifier):
 	"""
 
 	def __init__(self, positive_threshold, negative_threshold, 
-		spread = 4, max_iterations = 2, use_sentence_length=False,
-		confidence_threshold = None):
-	super(SentenceConvolutionClassifier, self).__init__(positive_threshold, negative_threshold, confidence_threshold)
+		spread = 4, use_sentence_length=False, 
+		confidence_threshold = None,
+		max_iterations = 2):
+		super(SentenceConvolutionClassifier, self).__init__(positive_threshold, negative_threshold, confidence_threshold)
 
-	self.iterations = max_iterations
-	self.use_sentence_length = use_sentence_length
+		self.iterations = max_iterations
+		self.use_sentence_length = use_sentence_length
 
-	# Handle spread
-	if spread < 0:
-		raise ValueError("spread: cannot be negative.")
-	if use_sentence_length:
-		if spread > 1:
-			raise ValueError("spread: must be less than 1 if considering sentence length")
-		if spread <= 0:
-			raise ValueError("spread: must be greater than 0 if considering sentence length")
-	self.spread = spread
+		# Handle spread
+		if spread < 0:
+			raise ValueError("spread: cannot be negative.")
+		if use_sentence_length:
+			if spread > 1:
+				raise ValueError("spread: must be less than 1 if considering sentence length")
+			if spread <= 0:
+				raise ValueError("spread: must be greater than 0 if considering sentence length")
+		self.spread = spread
 
 
 	@classmethod
@@ -43,10 +44,13 @@ class SentenceConvolutionClassifier(SentenceThresholdClassifier):
 	def classify_sentence(self, sentence):
 
 		# Generate an enumerated dictionary of words and scores 
-		sentence = dict([i, {'word': word, 'pos': pos, \
-			'score': self._compute_score(scores)
-			} for i, (word, pos, norm, scores) \ 
-				in enumerate(sentence)])
+		try:
+			sentence_dict = dict([(i, {'word': word, 'pos': pos,'score': self._compute_score(scores)}) for i, (word, pos, norm, scores) in enumerate(sentence)])
+		except TypeError as ex:
+			print sentence 
+			raise ex 
+		sentence = sentence_dict
+
 
 		# Spread the score for RB tags over adjacent ones 
 		iteration, max_iterations = 0, self.iterations

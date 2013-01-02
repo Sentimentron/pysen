@@ -1,1 +1,1 @@
-from tp import TopiaTagger 
+from tp import TopiaTagger, ExpandingTopiaTagger

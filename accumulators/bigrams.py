@@ -1,6 +1,6 @@
-from classifier import SentenceThresholdClassifer
+from classifier import SentenceThresholdClassifier
 
-class SentenceBigramClassifier(SentenceThresholdClassifer):
+class SentenceBigramClassifier(SentenceThresholdClassifier):
 
 	"""
 		This classifer splits a sentence into bigrams, in order to better handle different
@@ -69,7 +69,7 @@ class SentenceBigramClassifier(SentenceThresholdClassifer):
 				modify = True 
 		
 		for part in bigram:
-			word, pos, norm, scores = part:
+			word, pos, norm, scores = part
 			if scores is None:
 				unknowns += 1
 				continue

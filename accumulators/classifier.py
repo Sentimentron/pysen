@@ -32,7 +32,7 @@ class SentenceClassifier(object):
 		"""
 		pass
 
-class SentenceThresholdClassifer(SentenceClassifier):
+class SentenceThresholdClassifier(SentenceClassifier):
 
 	def __init__(self, positive_threshold, negative_threshold, confidence_threshold=None):
 
@@ -49,7 +49,7 @@ class SentenceThresholdClassifer(SentenceClassifier):
 		self.confidence_threshold = confidence_threshold
 
 	def _get_label(self, overall, confidence):
-		
+
 		if self.confidence_threshold is not None:
 			if confidence < self.confidence_threshold:
 				return 0

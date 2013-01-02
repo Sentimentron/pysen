@@ -1,6 +1,6 @@
-from classifier import SentenceThresholdClassifer
+from classifier import SentenceThresholdClassifier
 
-class SentenceMeanClassifier(SentenceThresholdClassifer):
+class SentenceMeanClassifier(SentenceThresholdClassifier):
 	"""
 		Computes the mean of the scores within a sentence and (if the result's confidence
 		is greater than the optional confidence parameter) returns 1 as the label if that 

@@ -1,4 +1,4 @@
-from scorer import TrainableScorer
+from scorer import TrainableScorer, Scorer
 
 class BasicCompositeScorer(TrainableScorer):
 
@@ -19,6 +19,16 @@ class BasicCompositeScorer(TrainableScorer):
 			if score is not None:
 				return score 
 		return None 
+
+	def score(self, sentence):
+		ret = []
+		for word, pos, norm in sentence:
+			extra = {'pos': pos}
+			score = self.get_score(word, extra)
+			if score is None:
+				score = self.get_score(norm, extra)
+			ret.append((word, pos, norm, score))
+		return ret
 
 	def train(self, word, label, extra = {}):
 		for scorer in self._get_trainable():

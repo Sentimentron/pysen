@@ -15,7 +15,7 @@ class TrainingSimulationFeatureDatabase(FeatureDatabase):
 	"""
 
 	def __init__(self, fdb, coverage):
-		if not isisnstance(fdb, FeatureDatabase):
+		if not isinstance(fdb, FeatureDatabase):
 			raise TypeError("fdb: must derive from FeatureDatabase")
 
 		if type(coverage) is not types.FloatType:
@@ -26,7 +26,7 @@ class TrainingSimulationFeatureDatabase(FeatureDatabase):
 
 		self.wrapping = fdb
 		self.coverage = coverage
-		self.cache = None
+		self.hidden_features = set([])
 
 
 	def _coverage_check(self):
@@ -49,15 +49,21 @@ class TrainingSimulationFeatureDatabase(FeatureDatabase):
 		return self.wrapping.get_sources()
 
 	def get_feature_examples(self, feature, sources=None):
-		# Ensures that the training features chosen stay consistent across runs
-		if self.cache is not None:
-			return self.cache
-
-		self.cache = []
-
 		all_examples = self.wrapping.get_feature_examples(feature, sources)
 		for example in all_examples:
 			if not self._coverage_check():
+				self.hidden_features.add(example)
 				continue
-			self.cache.append(example)
+			if example in self.hidden_features:
+				continue
+			yield example
+
+	def get_all_features(self):
+		all_examples = self.wrapping.get_all_features()
+		for example in all_examples:
+			if not self._coverage_check():
+				self.hidden_features.add(example)
+				continue
+			if example in self.hidden_features:
+				continue
 			yield example
