@@ -60,5 +60,5 @@ class VariableExperienceScorer(TrainableScorer):
 			if pos <= diff:
 				return [{'neg': 1, 'pos': 0}]
 
-	def train(self, word, label, extra = {}):
-		self.feature_db.add_feature_example(word, label, "pang_lee", extra)
+	def train(self, word, label, extra = {}, source="default"):
+		self.feature_db.add_feature_example(word, label, source, extra)
