@@ -1,3 +1,5 @@
+from types import ListType, DictType
+
 from classifier import SentenceThresholdClassifier
 
 class SentenceMeanClassifier(SentenceThresholdClassifier):
@@ -21,13 +23,27 @@ class SentenceMeanClassifier(SentenceThresholdClassifier):
 		# Work out the average score 
 		for word, pos, norm, scores in sentence:
 			words += 1
-			if scores is None or len(scores) == 0:
+			if scores is None:
 				unknowns += 1
 				continue
-			for score in scores:
-				total_score += score['pos']
-				total_score -= score['neg']
-				scorable += 1
+			if type(scores) is ListType:
+				if len(scores) == 0:
+					unknowns += 1
+					continue
+				for score in scores:
+					if type(score) is DictType:
+						total_score += score['pos']
+						total_score -= score['neg']
+					else:
+						total_score += score
+			else:
+				if type(scores) is DictType:
+					total_score += scores['pos']
+					total_score -= scores['neg']
+				else:
+					total_score += scores 
+			
+			scorable += 1
 
 		# Error case for no scores
 		if scorable == 0:
