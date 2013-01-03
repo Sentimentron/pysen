@@ -1,6 +1,53 @@
 #!/usr/bin/python
+import types 
 from numpy import complex64
 from scipy.fftpack import ifft, fft
+from classifier import SentenceClassifier
+
+class SentenceFFTClassifier(SentenceClassifier):
+
+	def __init__(self, feature_db):
+		self.feature_db = feature_db
+		self.signals = []
+
+	def train(self, tagger, scorer, rescorer):
+
+		for text, label, extra in self.feature_db.get_all_features():
+			print text, label
+			tagged = tagger.tag(text)
+			scored = scorer.score(tagged)
+			scored = rescorer.rescore(scored)
+
+			signal = []
+			for word, pos, norm, score in scored:
+				overall, count = 0, 0
+				if score is None:
+					signal.append(0.0)
+					continue
+				signal.append(score['pos'] - score['neg'])
+
+			self.signals.append((signal, label))
+
+	def classify_sentence(self, sentence):
+		signal = []
+		for word, pos, norm, score in sentence:
+			if score is None:
+				signal.append(0.0)
+			else:
+				if type(score) is types.DictType:
+					signal.append(score['pos'] - score['neg'])
+				else:
+					signal.append(score)
+
+		best_correlation, best_label = 0, 0
+		for _signal, _label in self.signals:
+			corr = max(correlate(signal, _signal))
+			if corr > best_correlation:
+				best_correlation = corr 
+				best_label = _label 
+
+		return best_label, best_correlation, None 
+
 
 def to_complex(arr):
 	return [complex64(a) for a in arr]
