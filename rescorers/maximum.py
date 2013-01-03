@@ -1,10 +1,13 @@
 from rescorer import Rescorer
 
-class MaxRescorer():
+class MaximumRescorer(Rescorer):
 	
 	def get_score(self, scores):
 
-		score_pos = max([x['pos'] for score in scores])
-		score_neg = max([x['neg'] for score in scores])
+		if scores is None:
+			return scores
+
+		score_pos = max([x['pos'] for x in scores])
+		score_neg = max([x['neg'] for x in scores])
 
 		return {'pos': score_pos, 'neg': score_neg}
