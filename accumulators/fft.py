@@ -93,6 +93,26 @@ def correlate_skip_fft(sig1, sig2):
 	cnv = [ccmult(i, j) for i,j in zip(sig1_fft, sig2_fft)]
 	res = fft(cnv, power_pad, -1)
 
+def correlate_skip_ff1_onfirst(sig1_fft, sig2):
+
+	sig2 = [cnv_complex(i) for i in sig2]
+
+	if len(sig2) % 2 != 0:
+		sig2 = pad_end(sig2, 1)
+
+	padding = (abs(len(sig1_fft) - len(sig2)))/2
+	sig2 = pad_sim(sig2, padding)
+
+	power_pad = next_pow2(len(sig2))
+	pad_toadd = power_pad - len(sig2)
+
+	sig2 = pad_end(sig2, pad_toadd)
+
+	sig2_fft = fft(sig2, power_pad, 1)
+	cnv = [ccmult(i, j) for i,j in zip(sig1_fft, sig2_fft)]
+	res = fft(cnv, power_pad, -1)
+	return res
+
 def correlate(sig1, sig2):
 
 	sig1 = [cnv_complex(i) for i in sig1]
