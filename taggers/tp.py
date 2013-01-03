@@ -13,7 +13,13 @@ class TopiaTagger(Tagger):
 
 
 	def tag(self, text):
-		return self.tagger(text)
+		tagged = self.tagger(text)
+		ret = []
+		for word, pos, norm in tagged:
+			if "\n" in word:
+				word = word.replace("\n", "")
+			ret.append((word, pos, norm))
+		return ret
 
 class ExpandingTopiaTagger(TopiaTagger):
 

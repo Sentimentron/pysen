@@ -11,7 +11,7 @@ class SentenceFFTClassifier(SentenceClassifier):
 		self.signals = []
 
 	def train(self, tagger, scorer, rescorer):
-
+		self.signals = []
 		for text, label, extra in self.feature_db.get_all_features():
 			print text, label
 			tagged = tagger.tag(text)

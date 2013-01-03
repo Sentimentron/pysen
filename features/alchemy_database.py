@@ -19,7 +19,7 @@ class Feature(Base):
 	__tablename__ = 'features'
 
 	id = Column(Integer, Sequence('feature_id_seq'), primary_key = True)
-	feature = Column(PickleType, unique = True, nullable = False)
+	feature = Column(String, unique = True, nullable = False)
 
 	def __init__(self, feature):
 		self.feature = feature
@@ -100,6 +100,10 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 		for obj in session.query(Feature).filter_by(feature=qry):
 			return obj
 
+	def feature_exists(self, feature):
+		qry = self.get_feature(feature)
+		return qry != None
+
 	def add_source(self, source):
 		session = self._get_session()
 		source = Source(source)
@@ -122,8 +126,8 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 				cache[obj.source.source] = {}
 			sub_cache = cache[obj.source.source]
 			feature = obj.feature.feature 
-			if type(feature) is not types.StringType:
-				sub_cache_key = str(obj.feature.feature)
+			if type(feature) is not types.StringType and type(feature) is not types.UnicodeType:
+					sub_cache_key = str(obj.feature.feature)
 			else:
 				sub_cache_key = feature
 			if sub_cache_key not in sub_cache:
@@ -134,6 +138,8 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 
 
 	def add_feature_example(self, feature, label, source=None, extra = None):
+		
+		super(AlchemyFeatureDatabase, self).add_feature_example(feature, label, source, extra)
 
 		if source is None:
 			source = "default"
@@ -165,7 +171,8 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 			self._gen_cache()
 
 		if type(feature) is not types.StringType:
-			feature = str(feature)
+			if type(feature) is not types.UnicodeType:
+				feature = str(feature)
 
 		for source in self._cache:
 			if sources is not None:
