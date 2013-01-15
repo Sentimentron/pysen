@@ -144,8 +144,8 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 		if source is None:
 			source = "default"
 
-		if label not in [-1, 1]:
-			raise ValueError("label: must be -1 or 1")
+		if label not in [-1, 0, 1]:
+			raise ValueError("label: must be -1, 0 or 1")
 
 		source_obj = self.get_source(source)
 		feature_obj = self.get_feature(feature)

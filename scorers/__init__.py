@@ -3,3 +3,4 @@ from scorer import Scorer, TrainableScorer
 from composite import BasicCompositeScorer, AllScoresCompositeScorer
 from variable import VariableExperienceScorer
 from AFINN import AFINNScorer
+from experiencescorer import WordExperienceScorer, UnknownWordExperienceScorer, ThresholdWordExperienceScorer

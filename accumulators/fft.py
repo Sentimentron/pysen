@@ -13,10 +13,9 @@ class SentenceFFTClassifier(SentenceClassifier):
 	def train(self, tagger, scorer, rescorer):
 		self.signals = []
 		for text, label, extra in self.feature_db.get_all_features():
-			print text, label
 			tagged = tagger.tag(text)
 			scored = scorer.score(tagged)
-			scored = rescorer.rescore(scored)
+			scored = list(rescorer.rescore(scored))
 
 			signal = []
 			for word, pos, norm, score in scored:
@@ -41,7 +40,8 @@ class SentenceFFTClassifier(SentenceClassifier):
 
 		best_correlation, best_label = 0, 0
 		for _signal, _label in self.signals:
-			corr = max(correlate(signal, _signal))
+			correlation_signal = correlate(signal, _signal)
+			corr = max(correlation_signal)
 			if corr > best_correlation:
 				best_correlation = corr 
 				best_label = _label 
