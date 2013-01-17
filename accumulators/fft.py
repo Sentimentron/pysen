@@ -1,4 +1,6 @@
 #!/usr/bin/python
+import random
+import sys
 import types 
 from numpy import complex64
 from scipy.fftpack import ifft, fft
@@ -9,9 +11,34 @@ class SentenceFFTClassifier(SentenceClassifier):
 	def __init__(self, feature_db):
 		self.feature_db = feature_db
 		self.signals = []
+		self._signal_length = 0
+
+	def _fft_signal(self, signal):
+		signal = to_complex(signal)
+
+		if len(signal) % 2 != 0:
+			signal = pad_end(signal, 1)
+
+		padding = (abs(len(signal) - self._signal_length))/2
+		if padding > 0:
+			signal = pad_sim(signal, padding)
+
+		if not len(signal) == self._signal_length:
+			raise ValueError(("Need to be the same length: ", len(signal), self._signal_length))
+
+		power_pad = next_pow2(len(signal))
+		pad_toadd = power_pad - len(signal)
+
+		signal = pad_end(signal, pad_toadd)
+
+		signal = fft(signal)
+		return signal 
 
 	def train(self, tagger, scorer, rescorer):
 		self.signals = []
+		tmp_signals  = []
+		raw_signals  = []
+		# Append a score vector to this-self
 		for text, label, extra in self.feature_db.get_all_features():
 			tagged = tagger.tag(text)
 			scored = scorer.score(tagged)
@@ -25,10 +52,22 @@ class SentenceFFTClassifier(SentenceClassifier):
 					continue
 				signal.append(score['pos'] - score['neg'])
 
+			self._signal_length = max(self._signal_length, len(signal))
+			tmp_signals.append((signal, label))
+
+		if self._signal_length %2 != 0:
+			self._signal_length += 1
+
+		# Run the FFT on each signal
+		for signal, label in tmp_signals:
+			signal = self._fft_signal(signal)
 			self.signals.append((signal, label))
+
 
 	def classify_sentence(self, sentence):
 		signal = []
+		if len(sentence) > self._signal_length:
+			return 0, 0, None
 		for word, pos, norm, score in sentence:
 			if score is None:
 				signal.append(0.0)
@@ -39,8 +78,17 @@ class SentenceFFTClassifier(SentenceClassifier):
 					signal.append(score)
 
 		best_correlation, best_label = 0, 0
-		for _signal, _label in self.signals:
-			correlation_signal = correlate(signal, _signal)
+		# Compute the FFT of the score vector
+		signal = self._fft_signal(signal)
+
+		#comp = random.sample(self.signals, 500)
+		comp = self.signals
+		print >> sys.stderr, "fft: len(comp) is", len(comp)
+
+		for counter, (_signal, _label) in enumerate(comp):
+			cnv = [i * j.conjugate() for i, j in zip(signal, _signal)]
+			res = ifft(cnv)
+			correlation_signal = [r.real for r in res]
 			corr = max(correlation_signal)
 			if corr > best_correlation:
 				best_correlation = corr 
