@@ -51,7 +51,7 @@ def yield_document_pairs(document_base):
 	for fname in fnames:
 		# Read the document body
 		fp  = open(fname, 'r')
-		txt = fp.read()
+		txt = fp.read().decode('utf-8')
 		fp.close()
 
 		# Decide the original label
