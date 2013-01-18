@@ -13,18 +13,22 @@ class SentenceFFTClassifier(SentenceClassifier):
 		self.signals = []
 		self._signal_length = 0
 
-	def _fft_signal(self, signal):
+	def _fft_signal(self, signal, length=None):
+		if length is None:
+			length = self._signal_length
+
 		signal = to_complex(signal)
 
 		if len(signal) % 2 != 0:
 			signal = pad_end(signal, 1)
 
-		padding = (abs(len(signal) - self._signal_length))/2
+		padding = (abs(len(signal) - length))/2
+		print padding, len(signal)
 		if padding > 0:
 			signal = pad_sim(signal, padding)
 
-		if not len(signal) == self._signal_length:
-			raise ValueError(("Need to be the same length: ", len(signal), self._signal_length))
+		if not len(signal) == length:
+			raise ValueError(("Need to be the same length: ", len(signal), length))
 
 		power_pad = next_pow2(len(signal))
 		pad_toadd = power_pad - len(signal)
