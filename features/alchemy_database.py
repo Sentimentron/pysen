@@ -2,7 +2,7 @@ import types
 
 from feature_database import FeatureDatabase
 
-from sqlalchemy import Table, Sequence, Column, Integer, String, ForeignKey, create_engine
+from sqlalchemy import Table, Sequence, Column, Integer, String, ForeignKey, create_engine, Unicode
 from sqlalchemy.orm import relationship, backref, joinedload
 from sqlalchemy.orm.session import Session
 from sqlalchemy.ext.declarative import declarative_base
@@ -73,7 +73,10 @@ class AlchemyFeatureDatabase(FeatureDatabase):
 		"""
 
 		if type(engine) == types.StringType:
-			engine = create_engine(engine)
+			new_engine = create_engine(engine, encoding='utf-8')
+			if "sqlite:" in engine:
+				new_engine.raw_connection().connection.text_factory = str 
+			engine = new_engine
 		self._engine = engine
 		self._session = Session(bind=self._engine)
 		self._cache = None
