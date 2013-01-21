@@ -13,7 +13,7 @@ class Phrase(object):
 	@classmethod
 	def _check_pos(cls, pos, strict=False):
 		allowed = ["RB", "NN", "JJ", "VB"]
-		tolerated = ["DT", "PRP"]
+		tolerated = ["DT", "PRP", "POS", "IN", "MD", "EX", "TO"]
 		
 		for _pos in allowed:
 			if _pos in pos:

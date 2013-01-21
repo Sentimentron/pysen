@@ -28,7 +28,7 @@ class PhraseClassifier(object):
 			rescorer = MaximumRescorer()
 
 		if classifier is None:
-			classifier = SentenceMeanClassifier(0.1777468, 0.045990)
+			classifier = SentenceMeanClassifier(0.19733, 0.01468)
 
 		self.scorer = scorer 
 		self.rescorer = rescorer
@@ -58,22 +58,34 @@ class PhraseClassifier(object):
 
 		label, score, _junk = self.classifier.classify_sentence(scored)
 
-		if label == -1:
-			if estimate <= 0.4444:
-				label = 1
-			else:
-				label = -1
-		elif label == 1:
-			if estimate <= 0.375:
-				label = -1
-			else:
-				label = 1
+		if False:
+			if label == -1:
+				if estimate <= 0.4444:
+					label = 1
+				else:
+					label = -1
+			elif label == 1:
+				if estimate <= 0.375:
+					label = -1
+				else:
+					label = 1
 
 		return label, score, estimate 
 
-	def evaluate(self, training_data):
+	def train_classifier(self, training_data):
+		training = []
+		for phrase, label in training_data:
+			scored = list(self.rescorer.rescore(self.scorer.score(phrase.yield_scorable())))
+			training.append((scored, label))
+		self.classifier.find_threshold(training)
+
+	def evaluate(self, training_data, train=False):
 		results = {}
 		probs   = {}
+
+		if train:
+			self.classifier.find_threshold(training_data)
+
 		for phrase, _label in training_data:
 			label, score, estimate = self.get_prediction(phrase)
 			result_key = (_label, label)

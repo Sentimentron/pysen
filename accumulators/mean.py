@@ -24,7 +24,7 @@ class SentenceMeanClassifier(SentenceThresholdClassifier):
 		divided by the total length of the sentence. 
 	"""
 
-	def find_threshold(self, training_sentences, desired_accuracy=1.00, desired_coverage=0.20, run_count=30000):
+	def find_threshold(self, training_sentences, desired_accuracy=1.00, desired_coverage=0.20, run_count=300):
 		accuracy, coverage = 0, 1.0
 		pos, neg = self.positive_threshold, self.negative_threshold
 		runs = 0
@@ -71,8 +71,7 @@ class SentenceMeanClassifier(SentenceThresholdClassifier):
 			coverage = 1.0 * classified/total
 			new_cam  = compute_cam(coverage, accuracy)
 			print >> sys.stderr, new_cam, cam
-			if new_cam >= cam:
-				results.append((new_cam, accuracy, coverage, pos, neg))
+			results.append((new_cam, accuracy, coverage, pos, neg))
 			print >> sys.stderr, "accuracy: %.2f %%, coverage:%.2f %%" % (accuracy*100.0, coverage*100.0)
 			print >> sys.stderr, "positive: %.2f, negative:%.2f" % (pos, neg)
 
