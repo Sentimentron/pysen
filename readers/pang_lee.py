@@ -33,14 +33,28 @@ def get_sentence_pairs(sentence_base):
 	# Read the contents of each of the files
 	contents = [(fp.read(), sen) for fp, sen in fps]
 
-	# Split each file 
-	sentences = [(st.replace('\n','').strip().split('.'), sen) for st, sen in contents]
+	for lines, sentiment in contents:
+		
+		sentences = lines.split('\n')
+		
+		if sentiment == 'neg':
+			sentiment = -1
+		else:
+			sentiment = 1
 
-	# Zip the results 
-	orig = set(yield_sentiment_pairs(sentences[0][0], sentences[0][1]))
-	orig = orig.union(yield_sentiment_pairs(sentences[1][0], sentences[1][1]))
+		for sentence in sentences:
+			# Walk back through the sentence and strip
+			# the last full-stop
+			stop = -1
+			for position, _char in enumerate(sentence):
+				if _char == '.':
+					stop = position 
 
-	return orig
+			if stop != -1:
+				sentence = sentence[0:stop]
+			
+			if len(sentence.strip()) > 0:
+				yield sentence, sentiment
 
 def yield_document_pairs(document_base):
 
