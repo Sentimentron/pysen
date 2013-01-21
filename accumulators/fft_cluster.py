@@ -15,7 +15,7 @@ def _compute_naive_correlation(stored_signal):
 
 class ClusteringFFTClassifier(SentenceClassifier):
 
-	def __init__(self, feature_db, threshold = 0.2):
+	def __init__(self, feature_db, threshold = 0.5):
 		self._feature_db = feature_db
 		self._signals = []
 		self._signal_length = 0
