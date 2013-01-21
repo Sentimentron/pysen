@@ -1,6 +1,15 @@
+import itertools
+import math
+import random
+import sys
 from types import ListType, DictType
 
 from classifier import SentenceThresholdClassifier
+
+def compute_cam(coverage, accuracy):
+	#return 1-math.pow(accuracy, coverage)
+	return math.pow(coverage, 0.55)*(accuracy-0.5)
+
 
 class SentenceMeanClassifier(SentenceThresholdClassifier):
 	"""
@@ -14,6 +23,66 @@ class SentenceMeanClassifier(SentenceThresholdClassifier):
 		The confidence is the total number of unknown scores in the sentence, 
 		divided by the total length of the sentence. 
 	"""
+
+	def adjust_thresholds(self, training_sentences, desired_accuracy=0.80, desired_coverage=0.20, run_count=30000):
+		accuracy, coverage = 0, 1.0
+		pos, neg = self.positive_threshold, self.negative_threshold
+		runs = 0
+		cam = compute_cam(desired_coverage, desired_accuracy)
+		results = []
+		while runs < run_count and len(results) == 0:
+
+			# Generate parameters
+			pos, neg = 0, 0
+			while 1:
+				pos = random.random()*0.5 - 0.25
+				neg = 0.25-random.random()*0.5
+				if pos > neg:
+					break
+
+			runs += 1
+			accurate, total = 0, 0
+			correct_pos, correct_neg = 0, 0
+			count_pos, count_neg = 0, 0
+			accuracy_pos, accuracy_neg = 0, 0
+			classified = 0
+			self.positive_threshold, self.negative_threshold = pos, neg
+			for sentence, label in training_sentences:
+				_label, _confidence, _junk = self.classify_sentence(sentence)
+				total += 1
+				if label == 1:
+					count_pos += 1
+				else:
+					count_neg += 1
+				if _label == 0:
+					continue
+				classified += 1
+				if _label == label:
+					accurate += 1
+					if label == -1:
+						correct_neg += 1
+					if label == 1:
+						correct_pos += 1
+
+			accuracy_neg = 1.0 * correct_neg / count_neg 
+			accuracy_pos = 1.0 * correct_pos / count_pos
+
+			accuracy = 1.0 * accurate/classified
+			coverage = 1.0 * classified/total
+			new_cam  = compute_cam(coverage, accuracy)
+			print >> sys.stderr, new_cam, cam
+			if new_cam >= cam:
+				results.append((new_cam, accuracy, coverage, pos, neg))
+			print >> sys.stderr, "accuracy: %.2f %%, coverage:%.2f %%" % (accuracy*100.0, coverage*100.0)
+			print >> sys.stderr, "positive: %.2f, negative:%.2f" % (pos, neg)
+
+		winner = sorted(results, reverse=True, key=lambda x: x[0])[0]
+		print >> sys.stderr, winner
+		cam, accuracy, coverage, pos, neg = winner
+		self.positive_threshold = pos 
+		self.negative_threshold = neg
+		raw_input()
+				
 
 	def classify_sentence(self, sentence):
 
