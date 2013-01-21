@@ -24,13 +24,13 @@ class SentenceMeanClassifier(SentenceThresholdClassifier):
 		divided by the total length of the sentence. 
 	"""
 
-	def adjust_thresholds(self, training_sentences, desired_accuracy=0.80, desired_coverage=0.20, run_count=30000):
+	def find_threshold(self, training_sentences, desired_accuracy=0.90, desired_coverage=0.20, run_count=30000):
 		accuracy, coverage = 0, 1.0
 		pos, neg = self.positive_threshold, self.negative_threshold
 		runs = 0
 		cam = compute_cam(desired_coverage, desired_accuracy)
 		results = []
-		while runs < run_count and len(results) == 0:
+		while runs < run_count or len(results) == 0:
 
 			# Generate parameters
 			pos, neg = 0, 0
@@ -81,7 +81,6 @@ class SentenceMeanClassifier(SentenceThresholdClassifier):
 		cam, accuracy, coverage, pos, neg = winner
 		self.positive_threshold = pos 
 		self.negative_threshold = neg
-		raw_input()
 				
 
 	def classify_sentence(self, sentence):

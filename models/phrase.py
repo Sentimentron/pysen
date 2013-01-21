@@ -72,6 +72,10 @@ class Phrase(object):
 			total -= score['neg']
 		return total*1.0/count
 
+	def yield_scorable(self):
+		for word, pos in self.words:
+			yield word, pos, word
+
 	def __str__(self):
 		return "Phrase(%s)" % (str(self.words), )
 

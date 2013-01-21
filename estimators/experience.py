@@ -1,8 +1,5 @@
 import types
-from collections import Counter
-
-from scorer import TrainableScorer
-
+from collections import Counter	
 from sqlalchemy import Table, Sequence, Column, Integer, String, ForeignKey, create_engine
 from sqlalchemy.orm import relationship, backref, joinedload, validates
 from sqlalchemy.orm.session import Session
@@ -169,6 +166,24 @@ class WordExperienceEstimator(object):
 		self.db = WordLabelDatabase(engine)
 		self.db._generate_cache()
 
+	def train(self, word, label):
+		self.db.add_feature(word, label)
+
+	def flush(self):
+		self.db.finalize()
+
+	def get_estimate_fromscore(self, word, score):
+		label = 0
+		if score is None:
+			return 0
+		score = score['pos'] - score['neg']
+		if score > 0:
+			label = 1
+		else:
+			label = -1
+
+		return self.get_estimate(word, label)
+
 	def get_estimate(self, word, label):
 		
 		result = self.db.get_feature_labels(word)
@@ -180,10 +195,11 @@ class WordExperienceEstimator(object):
 			if key not in result:
 				result[key] = 0
 
-		total_matching, total = 0
+		total_matching, total = 0, 0
 		for key in result:
 			if key == label:
-				total_matching = len(result[key])
-			total += len(result[key])
+				total_matching = result[key]
+			total += result[key]
 
 		return total_matching * 1.0 / total
+
