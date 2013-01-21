@@ -54,10 +54,23 @@ class Phrase(object):
 	def get_text(self):
 		return ' '.join(self.wordlist)
 
-	def score(self, scorer, rescorer, classifier):
-		scores = map(scorer.score, self.words)
+	def score(self, scorer, rescorer):
+		scores = []
+		for word, pos in self.words:
+			score = scorer.get_score(word, pos)
+			if score is None:
+				score = scorer.get_score(word)
+			if score is not None:
+				scores.append((word, pos, word, scorer.get_score(word, pos)))
 		scores = list(rescorer.rescore(scores))
-		return classifier.classify_sentence(scores)
+		count  = len(scores)
+		if count == 0:
+			return 0
+		total = 0
+		for word, pos, norm, score in scores:
+			total += score['pos']
+			total -= score['neg']
+		return total*1.0/count
 
 	def __str__(self):
 		return "Phrase(%s)" % (str(self.words), )

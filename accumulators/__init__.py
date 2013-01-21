@@ -4,5 +4,5 @@ from classifier import SentenceThresholdClassifier, SentenceClassifier
 from convolution import SentenceConvolutionClassifier
 from bigrams import SentenceBigramClassifier
 from mean import SentenceMeanClassifier
-from fft_bin import SentenceFFTBinClassifier
-from fft_cluster import ClusteringFFTClassifier
+#from fft_bin import SentenceFFTBinClassifier
+#from fft_cluster import ClusteringFFTClassifier
