@@ -24,7 +24,7 @@ class SentenceMeanClassifier(SentenceThresholdClassifier):
 		divided by the total length of the sentence. 
 	"""
 
-	def find_threshold(self, training_sentences, desired_accuracy=0.90, desired_coverage=0.20, run_count=30000):
+	def find_threshold(self, training_sentences, desired_accuracy=1.00, desired_coverage=0.20, run_count=30000):
 		accuracy, coverage = 0, 1.0
 		pos, neg = self.positive_threshold, self.negative_threshold
 		runs = 0
