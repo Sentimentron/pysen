@@ -7,7 +7,6 @@ class Phrase(object):
 
 		if sentence is not None:
 			for word, pos, norm in sentence:
-#				print word, pos
 				self.add_word(word, pos)
 
 	@classmethod
@@ -50,6 +49,12 @@ class Phrase(object):
 				self.words.add((word, pos))
 
 		self.wordlist.append(word)
+
+	@property 
+	def contains_not(self):
+		if "not" in self.wordlist:
+			return True 
+		return False
 
 	def get_text(self):
 		return ' '.join(self.wordlist)

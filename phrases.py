@@ -39,7 +39,7 @@ class PhraseClassifier(object):
 		if not isinstance(phrase, Phrase):
 			raise TypeError((phrase, "Needs to be a pysen.models.Phrase"))
 
-	def get_prediction(self, phrase):
+	def get_prediction(self, phrase, invert_if_not=False):
 		self.__validate_phrase(phrase)
 
 		scored = list(self.rescorer.rescore(self.scorer.score(phrase.yield_scorable())))
@@ -68,6 +68,12 @@ class PhraseClassifier(object):
 					label = -1
 				else:
 					label = 1
+
+		if phrase.contains_not and invert_if_not:
+			if label == 1:
+				label = -1
+			elif label == -1:
+				label = 1
 
 		return label, score, estimate 
 
