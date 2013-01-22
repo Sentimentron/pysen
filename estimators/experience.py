@@ -61,7 +61,10 @@ class WordLabelDatabase(object):
 
 	def __init__(self, engine):
 		if type(engine) == types.StringType:
-			engine = create_engine(engine)
+			new_engine = create_engine(engine)
+			if "sqlite:" in engine:
+				new_engine.raw_connection().connection.text_factory = str
+			engine = new_engine 
 		self._engine = engine
 		self._session = Session(bind=self._engine)
 		self._cache = None

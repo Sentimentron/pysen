@@ -9,7 +9,6 @@ from scorers import AFINNScorer, SWPOSScorer, AllScoresCompositeScorer
 from estimators import WordExperienceEstimator
 from readers.sw_reader import read_sen_file
 
-
 class PhraseClassifier(object):
 
 	def __init__(self, scorer = None, rescorer = None, classifier = None):
