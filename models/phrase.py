@@ -76,8 +76,11 @@ class Phrase(object):
 		for word, pos in self.words:
 			yield word, pos, word
 
-	def __str__(self):
+	def __repr__(self):
 		return "Phrase(%s)" % (str(self.words), )
 
 	def __iter__(self):
 		return self.words.__iter__()
+
+	def __len__(self):
+		return len(self.words)
