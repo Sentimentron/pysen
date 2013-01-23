@@ -65,10 +65,8 @@ class SentenceClassifier(object):
 		probs   = {}
 
 		for sentence, _label in training_data:
-			try:
-				label, score, estimate = self.get_prediction(sentence)
-			except ValueError as ex:
-				continue
+			label, score, estimate = self.get_prediction(sentence)
+			print label, score, estimate
 			result_key = (_label, label)
 			if result_key not in results:
 				results[result_key] = []
