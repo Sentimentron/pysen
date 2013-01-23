@@ -123,8 +123,7 @@ class FlippingSentenceClassifier(SentenceClassifier): # %55
 		self._validate_sentence(sentence)
 		pos_counts = sentence.structure_bag_pos
 		for pos, count in pos_counts.most_common(1):
-			print pos
-			if pos not in ["CC"]:
+			if pos not in ["."]:
 				raise ValueError((sentence, "Wrong structure."))
 
 		raw = self.get_raw_prediction_data(sentence)
@@ -156,7 +155,7 @@ class VerySimpleSentenceClassifier(SentenceClassifier): # 73.45%
 		self._validate_sentence(sentence)
 		pos_counts = sentence.structure_bag_pos
 		for pos, count in pos_counts.most_common(1):
-			print pos
+			print pos, count
 			if pos not in ["."]:
 				raise ValueError((sentence, "Wrong structure."))
 
