@@ -126,20 +126,15 @@ class SentenceFFTClassifier(SentenceClassifier):
 		for phrase in sentence.phrases:
 			label, score, estimate = self.classifier.get_prediction(phrase)
 			scores.append(score)
-			probs.append(score)
+			probs.append(estimate)
 
 		if len(scores) == 0:
 			return 0, 0, 0 
 
-		average_prob = sum(probs) / len(probs)
-
 		c_scores = self._fft_signal(scores)
-		c_probs  = self._fft_signal(probs )
-
 		c_scores = fft(c_scores)
-		c_probs  = fft(c_probs )
 
-		best_correlation, best_label, best_probability = 0, 0, 0
+		best_correlation, best_label, best_probability = 0, 0, [0]
 		for f in self._match(punc):
 			# Convert to complex
 			m_scores = fft(self._fft_signal(f.phrase_scores))
@@ -154,13 +149,19 @@ class SentenceFFTClassifier(SentenceClassifier):
 			if corr > best_correlation:
 				best_correlation = corr 
 				best_label = f.label 
-				best_probability = sum(f.phrase_probs) / len(f.phrase_probs)
+				best_probability = f.phrase_probs
 
 		# Work out the average probability of the first
-		average_prob += best_probability
-		average_prob /= 2.0
+		average_prob = sum(probs)/len(probs) + best_correlation*sum(best_probability)/len(best_probability)
+		average_prob/= 1 + best_correlation
+		corr_mult = 1
+		if best_label == -1:
+			corr_mult = -1
 
-		return best_label, best_correlation*best_label, average_prob
+		if average_prob <= 0.5:
+			best_label = 0
+
+		return best_label, corr_mult*best_label, average_prob
 
 
 
