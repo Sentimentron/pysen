@@ -36,3 +36,7 @@ class Sentence(object):
 	@property 
 	def structure_bag(self):
 		return Counter(self.remainder)
+
+	@property 
+	def structure_bag_pos(self):
+		return Counter([pos for word, pos in self.remainder])
