@@ -23,6 +23,8 @@ class Sentence(object):
 					accum.append(p)
 				p = Phrase()
 				accum.append((word, pos))
+		if len(p) > 0:
+			accum.append(p)
 		self.vector = accum
 
 	@property
