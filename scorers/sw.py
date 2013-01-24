@@ -24,7 +24,6 @@ class SWScorer(Scorer):
 class SWPOSScorer(SWScorer):
 
 	def __init__(self, scores):
-		print "Hi"
 		super(SWPOSScorer, self).__init__(scores)
 
 	def get_score(self, word, pos):

@@ -30,6 +30,7 @@ class MetaSentenceClassifier(SentenceClassifier):
 				continue
 			if label != 0:
 				return label, average, prob 
+				
 			averages.append(average); probs.append(prob)
 		
 		most_probable = max(probs)
