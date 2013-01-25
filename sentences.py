@@ -22,24 +22,29 @@ class SentenceClassifier(object):
 	def get_raw_prediction_data(self, sentence):
 		self._validate_sentence(sentence)
 		scores, probs = [], []
+		pos, neg = 0, 0
 		for phrase in sentence.phrases:
 			label, score, estimate = self.classifier.get_prediction(phrase)
 			scores.append(score)
 			probs.append(estimate)
+			if label == 1:
+				pos += 1
+			elif label == -1:
+				neg += 1
 
 		comps = sentence.structure_bag_pos
 
 		if len(scores) == 0:
 			return None
 
-		return scores, probs, comps
+		return scores, probs, comps, pos, neg 
 
 	def get_csv_prediction_data(self, sentence):
 
 		raw = self.get_raw_prediction_data(sentence)
 		if raw is None:
 			return None 
-		scores, probs, comps = raw
+		scores, probs, comps, pos, neg = raw
 
 		average_score = sum(scores) / len(scores)
 		average_probs = sum(probs ) / len(probs )
@@ -95,7 +100,7 @@ class MajoritySentenceClassifier(SentenceClassifier): # 64.64% (CC), 61.8% (,), 
 		raw = self.get_raw_prediction_data(sentence)
 		if raw is None:
 			return 0, 0, 0
-		scores, probs, comps = raw
+		scores, probs, comps, pos, neg = raw
 
 		pos, neg, label = 0, 0, 0
 		for score in scores:
@@ -114,7 +119,7 @@ class MajoritySentenceClassifier(SentenceClassifier): # 64.64% (CC), 61.8% (,), 
 		if average_probs <= 0.5:
 			label = 0
 
-		return label, average_score, average_probs
+		return label, average_score, average_probs, pos, neg 
 
 class FlippingSentenceClassifier(SentenceClassifier): # %55
 
@@ -128,7 +133,7 @@ class FlippingSentenceClassifier(SentenceClassifier): # %55
 		raw = self.get_raw_prediction_data(sentence)
 		if raw is None:
 			return 0, 0, 0
-		scores, probs, comps = raw
+		scores, probs, comps, pos, neg = raw
 
 		label = 0
 		for score in scores:
@@ -146,21 +151,27 @@ class FlippingSentenceClassifier(SentenceClassifier): # %55
 		if average_probs <= 0.5:
 			label = 0
 
-		return label, average_score, average_probs
+		return label, average_score, average_probs, pos, neg 
 
 class VerySimpleSentenceClassifier(SentenceClassifier): # 73.45%
 
 	def get_prediction(self, sentence):
 		self._validate_sentence(sentence)
 		pos_counts = sentence.structure_bag_pos
+		valid = True
 		for pos, count in pos_counts.most_common(1):
-			if pos not in ["."]:
-				raise ValueError((sentence, "Wrong structure."))
+			if pos not in [".", ",", ":", "-"]:
+				valid = False
+			if count > 1:
+				valid = False
+
+		if not valid:
+			raise ValueError((sentence, "Wrong structure."))
 
 		raw = self.get_raw_prediction_data(sentence)
 		if raw is None:
-			return 0, 0, 0
-		scores, probs, comps = raw
+			return 0, 0, 0, 0, 0
+		scores, probs, comps, pos, neg = raw
 
 		#average_score = sum(scores) / len(scores)
 		average_score = 0
@@ -183,4 +194,4 @@ class VerySimpleSentenceClassifier(SentenceClassifier): # 73.45%
 		if average_probs <= 0.5:
 			label = 0
 
-		return label, average_score, average_probs
+		return label, average_score, average_probs, pos, neg
