@@ -99,7 +99,7 @@ class MajoritySentenceClassifier(SentenceClassifier): # 64.64% (CC), 61.8% (,), 
 
 		raw = self.get_raw_prediction_data(sentence)
 		if raw is None:
-			return 0, 0, 0
+			return 0, 0, 0, 0, 0, [], [] 
 		scores, probs, comps, pos, neg = raw
 
 		pos, neg, label = 0, 0, 0
@@ -119,7 +119,7 @@ class MajoritySentenceClassifier(SentenceClassifier): # 64.64% (CC), 61.8% (,), 
 		if average_probs <= 0.5:
 			label = 0
 
-		return label, average_score, average_probs, pos, neg 
+		return label, average_score, average_probs, pos, neg, probs, scores 
 
 class FlippingSentenceClassifier(SentenceClassifier): # %55
 
@@ -132,7 +132,7 @@ class FlippingSentenceClassifier(SentenceClassifier): # %55
 
 		raw = self.get_raw_prediction_data(sentence)
 		if raw is None:
-			return 0, 0, 0
+			return 0, 0, 0, 0, 0, [], [] 
 		scores, probs, comps, pos, neg = raw
 
 		label = 0
@@ -151,7 +151,7 @@ class FlippingSentenceClassifier(SentenceClassifier): # %55
 		if average_probs <= 0.5:
 			label = 0
 
-		return label, average_score, average_probs, pos, neg 
+		return label, average_score, average_probs, pos, neg, probs, scores 
 
 class VerySimpleSentenceClassifier(SentenceClassifier): # 73.45%
 
@@ -170,7 +170,7 @@ class VerySimpleSentenceClassifier(SentenceClassifier): # 73.45%
 
 		raw = self.get_raw_prediction_data(sentence)
 		if raw is None:
-			return 0, 0, 0, 0, 0
+			return 0, 0, 0, 0, 0, [], [] 
 		scores, probs, comps, pos, neg = raw
 
 		#average_score = sum(scores) / len(scores)
@@ -194,4 +194,4 @@ class VerySimpleSentenceClassifier(SentenceClassifier): # 73.45%
 		if average_probs <= 0.5:
 			label = 0
 
-		return label, average_score, average_probs, pos, neg
+		return label, average_score, average_probs, pos, neg, probs, scores 

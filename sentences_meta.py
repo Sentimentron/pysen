@@ -28,12 +28,12 @@ class MetaSentenceClassifier(SentenceClassifier):
 		total_pos, total_neg = 0, 0
 		for cls in (self.vss_classifier, self.fft_classifier):
 			try:
-				label, average, prob, pos, neg = cls.get_prediction(sentence)
+				label, average, prob, pos, neg, _probs, scores = cls.get_prediction(sentence)
 			except ValueError as ex:
 				print >> sys.stderr, ex, cls
 				continue
 			if label != 0:
-				return label, average, prob, pos, neg
+				return label, average, prob, pos, neg, _probs, scores
 				
 			averages.append(average); probs.append(prob)
 			total_pos += pos; total_neg += neg 
@@ -41,7 +41,7 @@ class MetaSentenceClassifier(SentenceClassifier):
 		most_probable = max(probs)
 		for average, prob in zip(averages, probs):
 			if prob == most_probable:
-				return 0, average, prob, total_pos, total_neg
+				return 0, average, prob, total_pos, total_neg, _probs, scores
 
 		# Should never reach here
-		raise Exception((sentence, average, prob, total_pos, total_neg))
+		raise Exception((sentence, average, prob, total_pos, total_neg, probs, scores))

@@ -134,7 +134,7 @@ class SentenceFFTClassifier(SentenceClassifier):
 				total_neg += 1
 
 		if len(scores) == 0:
-			return 0, 0, 0, 0, 0
+			return 0, 0, 0, 0, 0, [], [] 
 
 		c_scores = self._fft_signal(scores)
 		c_scores = fft(c_scores)
@@ -171,7 +171,7 @@ class SentenceFFTClassifier(SentenceClassifier):
 		if average_prob <= 0.5:
 			best_label = 0
 
-		return best_label, corr_mult*best_label, average_prob, total_pos, total_neg
+		return best_label, corr_mult*best_label, average_prob, total_pos, total_neg, probs, scores
 
 
 
