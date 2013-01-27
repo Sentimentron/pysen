@@ -7,12 +7,23 @@ from taggers import TopiaTagger
 from sentences_meta import MetaSentenceClassifier
 from models import Sentence
 
+def mean(of):
+    if len(of) == 0:
+        return 0
+    return sum(of)/len(of)
+
+def variance(of):
+    if len(of) == 0:
+        return 0
+    m = mean(of)
+    return sum([(i-m)*(i-m) for i in of])/len(of)
+
 class DocumentClassifier(object):
 
     def __init__(self, classification_file='clf.pickle'):
         fp = open(classification_file, 'r')
         self.tree = cPickle.load(fp)
-        self.clas = MetaSentenceClassifier("sqlite://sentences.db")
+        self.clas = MetaSentenceClassifier("sqlite:///sentences.db")
         self.tag  = TopiaTagger()
 
     def classify(self, document_text, sentence_trace=[]):
@@ -21,13 +32,14 @@ class DocumentClassifier(object):
         sentences = []
         for sentence in raw_sentences:
             try:
-                s = Sentence(sentence)
+                s = Sentence(sentence, self.tag)
                 sentences.append(s)
             except ValueError as ex:
                 print sentence, ex 
         # Score those sentences
         scores = []
         for s in sentences:
+            subtrace = []
             score = self.clas.get_prediction(s, subtrace)
             scores.append(score)
             sentence_trace.append((s, score, subtrace))
@@ -66,14 +78,4 @@ class DocumentClassifier(object):
         # Classify 
         labels = self.tree.predict([row])
         for label in labels:
-            pass
-if __name__ == "__main__":
-
-    import requests
-
-    c = DocumentClassifier("../clf.pickle")
-
-    while 1:
-        url = raw_input("Enter a URL: ")
-        r = requests.get(url)
-        print c.classify(r.text)
+            return [label] + row
