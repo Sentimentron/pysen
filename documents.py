@@ -20,17 +20,16 @@ class DocumentClassifier(object):
         raw_sentences = sent_tokenize(document_text)
         sentences = []
         for sentence in raw_sentences:
-        	try:
-        		s = Sentence(sentence)
-        		sentences.append(s)
-        	except ValueError as ex:
-        		print sentence, ex 
+            try:
+                s = Sentence(sentence)
+                sentences.append(s)
+            except ValueError as ex:
+                print sentence, ex 
         # Score those sentences
         scores = []
         for s in sentences:
-            subtrace = []
-        	score = self.clas.get_prediction(s, subtrace)
-        	scores.append(score)
+            score = self.clas.get_prediction(s, subtrace)
+            scores.append(score)
             sentence_trace.append((s, score, subtrace))
         #
         # Compute statistics
@@ -70,11 +69,11 @@ class DocumentClassifier(object):
             pass
 if __name__ == "__main__":
 
-	import requests
+    import requests
 
-	c = DocumentClassifier("../clf.pickle")
+    c = DocumentClassifier("../clf.pickle")
 
-	while 1:
-		url = raw_input("Enter a URL: ")
-		r = requests.get(url)
-		print c.classify(r.text)
+    while 1:
+        url = raw_input("Enter a URL: ")
+        r = requests.get(url)
+        print c.classify(r.text)
