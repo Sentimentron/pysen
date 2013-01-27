@@ -19,7 +19,7 @@ class SentenceClassifier(object):
 		if not isinstance(sentence, Sentence):
 			raise TypeError((sentence, "Should be a Sentence."))
 
-	def get_raw_prediction_data(self, sentence):
+	def get_raw_prediction_data(self, sentence, phrase_trace=[]):
 		self._validate_sentence(sentence)
 		scores, probs = [], []
 		pos, neg = 0, 0
@@ -31,6 +31,7 @@ class SentenceClassifier(object):
 				pos += 1
 			elif label == -1:
 				neg += 1
+			phrase_trace.append((phrase, estimate, score, label))
 
 		comps = sentence.structure_bag_pos
 
@@ -70,7 +71,7 @@ class SentenceClassifier(object):
 		probs   = {}
 
 		for sentence, _label in training_data:
-			label, score, estimate = self.get_prediction(sentence)
+			label, score, estimate, _, _, _, _ = self.get_prediction(sentence)
 			result_key = (_label, label)
 			if result_key not in results:
 				results[result_key] = []
@@ -89,7 +90,7 @@ class SentenceClassifier(object):
 		return results, probs
 
 class MajoritySentenceClassifier(SentenceClassifier): # 64.64% (CC), 61.8% (,), 63.42 (CC+,)
-	def get_prediction(self, sentence):
+	def get_prediction(self, sentence, phrase_trace=[]):
 		self._validate_sentence(sentence)
 		pos_counts = sentence.structure_bag_pos
 		for pos, count in pos_counts.most_common(2):
@@ -97,7 +98,7 @@ class MajoritySentenceClassifier(SentenceClassifier): # 64.64% (CC), 61.8% (,), 
 			if pos not in [",", "CC"]:
 				raise ValueError((sentence, "Wrong structure."))
 
-		raw = self.get_raw_prediction_data(sentence)
+		raw = self.get_raw_prediction_data(sentence, phrase_trace)
 		if raw is None:
 			return 0, 0, 0, 0, 0, [], [] 
 		scores, probs, comps, pos, neg = raw
@@ -123,14 +124,14 @@ class MajoritySentenceClassifier(SentenceClassifier): # 64.64% (CC), 61.8% (,), 
 
 class FlippingSentenceClassifier(SentenceClassifier): # %55
 
-	def get_prediction(self, sentence):
+	def get_prediction(self, sentence, phrase_trace = []):
 		self._validate_sentence(sentence)
 		pos_counts = sentence.structure_bag_pos
 		for pos, count in pos_counts.most_common(1):
 			if pos not in ["."]:
 				raise ValueError((sentence, "Wrong structure."))
 
-		raw = self.get_raw_prediction_data(sentence)
+		raw = self.get_raw_prediction_data(sentence, phrase_trace)
 		if raw is None:
 			return 0, 0, 0, 0, 0, [], [] 
 		scores, probs, comps, pos, neg = raw
@@ -155,7 +156,7 @@ class FlippingSentenceClassifier(SentenceClassifier): # %55
 
 class VerySimpleSentenceClassifier(SentenceClassifier): # 73.45%
 
-	def get_prediction(self, sentence):
+	def get_prediction(self, sentence, phrase_trace = []):
 		self._validate_sentence(sentence)
 		pos_counts = sentence.structure_bag_pos
 		valid = True
@@ -168,7 +169,7 @@ class VerySimpleSentenceClassifier(SentenceClassifier): # 73.45%
 		if not valid:
 			raise ValueError((sentence, "Wrong structure."))
 
-		raw = self.get_raw_prediction_data(sentence)
+		raw = self.get_raw_prediction_data(sentence, phrase_trace)
 		if raw is None:
 			return 0, 0, 0, 0, 0, [], [] 
 		scores, probs, comps, pos, neg = raw

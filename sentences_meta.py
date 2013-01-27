@@ -21,18 +21,22 @@ class MetaSentenceClassifier(SentenceClassifier):
 	def finalize(self):
 		self.fft_classifier.finalize()
 
-	def get_prediction(self, sentence):
+	def get_prediction(self, sentence, phrase_trace=[]):
 		self._validate_sentence(sentence)
 
 		averages, probs = [], []
+		trace = []
 		total_pos, total_neg = 0, 0
 		for cls in (self.vss_classifier, self.fft_classifier):
 			try:
-				label, average, prob, pos, neg, _probs, scores = cls.get_prediction(sentence)
+				trace = []
+				label, average, prob, pos, neg, _probs, scores = cls.get_prediction(sentence, trace)
 			except ValueError as ex:
 				print >> sys.stderr, ex, cls
 				continue
 			if label != 0:
+				for t in trace:
+					phrase_trace.append(t)
 				return label, average, prob, pos, neg, _probs, scores
 				
 			averages.append(average); probs.append(prob)
@@ -41,6 +45,8 @@ class MetaSentenceClassifier(SentenceClassifier):
 		most_probable = max(probs)
 		for average, prob in zip(averages, probs):
 			if prob == most_probable:
+				for t in trace:
+					phrase_trace.append(t)
 				return 0, average, prob, total_pos, total_neg, _probs, scores
 
 		# Should never reach here

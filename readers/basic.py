@@ -18,4 +18,4 @@ def from_file(fp):
 		except ValueError:
 			label = line[0]
 			sentence = ','.join(line[1:])
-		yield int(label), sentence
+		yield int(label), sentence.decode('utf-8').encode('ascii', 'ignore')

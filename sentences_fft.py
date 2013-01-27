@@ -120,7 +120,7 @@ class SentenceFFTClassifier(SentenceClassifier):
 
 		return signal
 
-	def get_prediction(self, sentence):
+	def get_prediction(self, sentence, phrase_trace=[]):
 		punc = tuple([word for word, pos in sentence.remainder])
 		scores, probs = [], []
 		total_pos, total_neg = 0, 0
@@ -128,6 +128,7 @@ class SentenceFFTClassifier(SentenceClassifier):
 			label, score, estimate = self.classifier.get_prediction(phrase)
 			scores.append(score)
 			probs.append(estimate)
+			phrase_trace.append((phrase, estimate, score, label))
 			if label == 1:
 				total_pos += 1
 			else:

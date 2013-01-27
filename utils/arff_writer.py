@@ -11,6 +11,9 @@ class ARFFAttribute(object):
 	def __str__(self):
 		return "@attribute " + self.name + " " + self.kind
 
+	def __repr__(self):
+		return "%s:%s(%s)" % (str(type(self)), self.kind, self.name)
+
 class ARFFNumericAttribute(ARFFAttribute):
 	
 	def __init__(self, name):
@@ -48,7 +51,8 @@ class ARFFWriter(object):
 
 	def push_row(self, row):
 		# print row
-		assert len(row) == len(self.attributes)
+		if len(row) != len(self.attributes):
+			raise ValueError((len(row), len(self.attributes)))
 		# assert len(filter(lambda x: x == None, row)) == 0	
 		revised = []
 		for thing in row:

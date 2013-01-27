@@ -54,7 +54,7 @@ def get_sentence_pairs(sentence_base):
 				sentence = sentence[0:stop]
 			
 			if len(sentence.strip()) > 0:
-				yield sentence, sentiment
+				yield sentence.decode('ISO-8859-1').encode('utf-8'), sentiment
 
 def yield_document_pairs(document_base):
 
@@ -65,7 +65,7 @@ def yield_document_pairs(document_base):
 	for fname in fnames:
 		# Read the document body
 		fp  = open(fname, 'r')
-		txt = fp.read().decode('utf-8')
+		txt = fp.read().decode('ISO-8859-1').encode('ascii', 'ignore')
 		fp.close()
 
 		# Decide the original label
