@@ -12,6 +12,8 @@ class Sentence(object):
 		if "[" in nlp_sentence or "(" in nlp_sentence:
 			raise ValueError("Can't parse")
 
+		self.text = nlp_sentence
+
 		tagged = tagger.tag(nlp_sentence)
 		p = Phrase()
 		accum = []
@@ -26,6 +28,12 @@ class Sentence(object):
 		if len(p) > 0:
 			accum.append(p)
 		self.vector = accum
+
+	def __str__(self):
+		return self.text.encode('ascii', 'ignore')
+
+	def __repr__(self):
+		return "Sentence(%s)" % (self.text)
 
 	@property
 	def phrases(self):

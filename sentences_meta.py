@@ -32,7 +32,7 @@ class MetaSentenceClassifier(SentenceClassifier):
 				trace = []
 				label, average, prob, pos, neg, _probs, scores = cls.get_prediction(sentence, trace)
 			except ValueError as ex:
-				print >> sys.stderr, ex, cls
+				# print >> sys.stderr, ex, cls # GULP
 				continue
 			if label != 0:
 				for t in trace:
