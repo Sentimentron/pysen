@@ -1,4 +1,5 @@
 import cPickle
+import types
 
 from sklearn import tree
 from nltk.tokenize import sent_tokenize
@@ -39,10 +40,19 @@ class DocumentClassifier(object):
         # Score those sentences
         scores = []
         for s in sentences:
-            subtrace = []
+            # If we're in list trace, make a new sub-list
+            if type(sentence_trace) == types.ListType:
+                subtrace = []
+            else:
+                subtrace = sentence_trace
+
             score = self.clas.get_prediction(s, subtrace)
             scores.append(score)
-            sentence_trace.append((s, score, subtrace))
+
+            if type(sentence_trace) == types.ListType:
+                sentence_trace.append((s, score, subtrace))
+            else:
+                sentence_trace[s] = score
         #
         # Compute statistics
         #

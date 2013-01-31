@@ -128,7 +128,12 @@ class SentenceFFTClassifier(SentenceClassifier):
 			label, score, estimate = self.classifier.get_prediction(phrase)
 			scores.append(score)
 			probs.append(estimate)
-			phrase_trace.append((phrase, estimate, score, label))
+			
+			if type(phrase_trace) == types.ListType:
+				phrase_trace.append((phrase, estimate, score, label))
+			else:
+				phrase_trace[phrase] = (estimate, score, label)
+
 			if label == 1:
 				total_pos += 1
 			else:

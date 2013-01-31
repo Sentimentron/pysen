@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import sys
+import types
 
 from sentences_fft import SentenceFFTClassifier
 from sentences import VerySimpleSentenceClassifier, SentenceClassifier
 from phrases import PhraseClassifier
 from models import Sentence 
+import types
 
 class MetaSentenceClassifier(SentenceClassifier):
 
@@ -28,15 +30,22 @@ class MetaSentenceClassifier(SentenceClassifier):
 		trace = []
 		total_pos, total_neg = 0, 0
 		for cls in (self.vss_classifier, self.fft_classifier):
-			try:
+			if type(phrase_trace) == types.ListType:
 				trace = []
+			else:
+				trace = {}
+			try:			
 				label, average, prob, pos, neg, _probs, scores = cls.get_prediction(sentence, trace)
 			except ValueError as ex:
 				# print >> sys.stderr, ex, cls # GULP
 				continue
 			if label != 0:
-				for t in trace:
-					phrase_trace.append(t)
+				if type(phrase_trace) == types.ListType:
+					for t in trace:
+						phrase_trace.append(t)
+				else:
+					for t in trace:
+						phrase_trace[t] = trace[t]
 				return label, average, prob, pos, neg, _probs, scores
 				
 			averages.append(average); probs.append(prob)
@@ -45,8 +54,14 @@ class MetaSentenceClassifier(SentenceClassifier):
 		most_probable = max(probs)
 		for average, prob in zip(averages, probs):
 			if prob == most_probable:
-				for t in trace:
-					phrase_trace.append(t)
+				# Build tracing structure
+				if type(phrase_trace) == types.ListType:
+					for t in trace:
+						phrase_trace.append(t)
+				else:
+					for t in trace:
+						phrase_trace[t] = trace[t]
+
 				return 0, average, prob, total_pos, total_neg, _probs, scores
 
 		# Should never reach here

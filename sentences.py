@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import types
 
 from phrases import PhraseClassifier 
 from models  import Sentence 
@@ -31,7 +32,10 @@ class SentenceClassifier(object):
 				pos += 1
 			elif label == -1:
 				neg += 1
-			phrase_trace.append((phrase, estimate, score, label))
+			if type(phrase_trace) == types.ListType:
+				phrase_trace.append((phrase, estimate, score, label))
+			else:
+				phrase_trace[phrase] = (estimate, score, label)
 
 		comps = sentence.structure_bag_pos
 
