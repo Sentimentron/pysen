@@ -1,0 +1,1 @@
+__VERSION__ = "pysen-1.0.0"
